@@ -1,0 +1,3 @@
+[run]
+source = become_a_legend
+omit = become_a_legend/test*
