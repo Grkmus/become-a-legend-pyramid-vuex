@@ -7,8 +7,8 @@
         </div>
         <div class="col-md-8">
           <div class="card-body">
-            <h2 class="card-title">{{player.name}} {{player.surname}}</h2>
-            <p class="card-text">@{{player.username}}</p>
+            <h2 class="card-title">{{ player.name }} {{ player.surname }}</h2>
+            <p class="card-text">@{{ player.username }}</p>
             <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
             <a class="btn-lg btn-danger" :href="'/player/' + player.id + '/quiz'">Fill out the quick form to play basketball!</a>
           </div>
@@ -20,7 +20,7 @@
         <div class="col-md-4">
           <div class="card">
               <ul class="list-group list-group-flush">
-                <li class="list-group-item">Age:</li>
+                <li class="list-group-item">Age: </li>
                 <li class="list-group-item">Weight:</li>
                 <li class="list-group-item">Height:</li>
                 <li class="list-group-item">Location:</li>
@@ -30,7 +30,7 @@
           </div>
         </div>
         <div class="col-md-8">
-            <div class="card" style="height:150px">
+            <!-- <div class="card" style="height:150px">
               <p>events</p>
             </div>
             <hr>
@@ -40,11 +40,11 @@
             <hr>
             <div class="card" style="height:150px">
               <p>events</p>
+            </div> -->
+            <div class="list-group" :key="event.id" v-for="event in player.events">
+                <event-card :event="event" :key="event._id"></event-card>
+                <hr/>
             </div>
-              <!-- <div class="list-group" v-for="event in events">
-                  <dailyEvent :data="event" :key="event._id" v-if="event._id"></dailyEvent>
-                  <hr/>
-              </div> -->
 
         </div>
     </div>
@@ -52,32 +52,21 @@
 </template>
 
 <script>
-import axios from 'axios'
 import router from '../router.js'
+import EventCard from '@/components/EventCard.vue'
+import { mapState } from 'vuex'
 
 export default {
   name: 'player',
   async created(){
-    await this.fetchPlayer(this.$route.params.id)
+    await this.$store.dispatch('fetchPlayer', this.$route.params.id)
   },
-  data(){
-    return {
-      player: {}
-    }
+  computed: {
+    ...mapState(['player'])
   },
-  methods: {
-    fetchPlayer: async function(id) {
-      const res = await axios.get(`http://localhost:6543/player/${id}`).catch(err => {
-        router.push({
-          name: 'notfound',
-          params: { message: err.message }
-        })
-      })
-      console.log(res)
-      this.player = res.data
-    } 
-  }
-
+  components: {
+    EventCard,
+  },
 }
 </script>
 

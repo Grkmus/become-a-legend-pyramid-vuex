@@ -17,22 +17,27 @@
 
 import router from '../router.js'
 import axios from 'axios'
+import jwt from 'jsonwebtoken'
 
 export default {
 	name: 'login',
 	methods: {
 		getFormValues: async function (submitEvent) {
-			console.log('...')
 			const formElements = submitEvent.target.elements
 			const player = {
 				username: formElements[0].value,
 				password: formElements[1].value,
 			}
-			console.log(player)
 			await axios.post('http://localhost:6543/login', player)
 				.then(async res => {
-					console.log(res)
 					localStorage.token = res.data.token
+					jwt.verify(localStorage.token, 'secret', (err, decoded) => {
+						if (err) {
+							console.log(err)
+						}
+						console.log(decoded)
+					})
+					this.$store.dispatch('getUserId')
 					router.push('home')
 				}).catch(err => {
 					if (err.response.status == 500)
@@ -41,15 +46,6 @@ export default {
 						alert(err.message)
 					console.log(err)
 				})
-			// console.log(res)
-			// router.push({
-			// 			name:'player',
-			// 			params: { id: res.data.id }
-			// 		})
-			// router.push({
-			//   name: 'player',
-			//   params: player
-			// })
 		}
 	}
 }

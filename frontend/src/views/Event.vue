@@ -1,5 +1,81 @@
 <template>
-
+<div class="event">
+    <div class="container">
+        <div class="container">
+            <nav aria-label="...">
+                <ul class="pagination pagination-lg">
+                    <li class="page-item" v-bind:class="{ active: event.phase == 'phase1', disabled: event.phase != 'phase1' }"><a class="page-link" href="#" tabindex="-1">Phase 1</a></li>
+                    <li class="page-item" v-bind:class="{ active: event.phase == 'phase2', disabled: event.phase == 'phase3' }"><a class="page-link" href="#" @click.once="fetchEventPhase2">Phase 2</a></li>
+                    <li class="page-item" v-bind:class="{ active: event.phase == 'phase3', disabled: event.phase != 'phase3' }"><a class="page-link" href="#">Phase 3</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="container">
+            <div class="card" id="eventTitle">
+                <div class="card-body">
+                    <h1 class="card-title">{{event.name}} Daily Event</h1>
+                    <h6 class="card-subtitle mb-2 text-muted">Date: {{realDate}} </h6>
+                    <h6 class="card-subtitle mb-2 text-muted">Time: {{time}}</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">Location: {{event.location}}</h6>
+                </div>
+            </div>
+        </div>
+        <!-- <h2 v-if="event.phase == 'phase1'">{{attendeesCount}} people has joined</h2><img src="@/assets/giphy.gif" v-if="loading" /> -->
+        <div class="row" v-if="!loading">
+            <div :key="player" v-for="player in event.attendees" v-if="event.phase == 'phase1'"><img class="player" :src="player.imageURL" @click="goToPlayer(player._id)" />
+                <p style="text-align: center;">{{player.name}} {{player.ratingEvaluation}}</p>
+            </div>
+            <div class="col-sm-4" v-if="event.phase == 'phase2'">
+                <div class="card" id="players">
+                    <div class="card-body">
+                        <h2>{{attendeesToBeSelectedCount}} people to be picked</h2>
+                        <div class="row"><template v-for="player in event.attendeesToBeSelected"><playerEventCard :data="player" :key="player._id" @selectPlayer="handleSelection"> </playerEventCard></template></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8 teams" v-if="event.phase == 'phase2'">
+                <div class="card" id="teams">
+                    <div class="card-body">
+                        <h2>{{teamCount}} teams gonna play</h2>
+                        <div class="row">
+                            <div class="col-sm-6" v-for="team in event.teams">
+                                <team :data="team" ref="teams" @skipTheTurn="handleSkipTurn"></team>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 teams" v-if="event.phase == 'phase3'">
+                        <div class="card" id="teams">
+                            <div class="card-body">
+                                <h2>Teams</h2>
+                                <div class="row">
+                                    <div class="col-sm-6" :key="team._id" v-for="team in event.teams">
+                                        <TeamPhase3 :data="team"  ref="teams">vs</TeamPhase3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" v-if="event.phase == 'phase3'">
+                        <div class="card" id="teams">
+                            <div class="card-body">
+                                <h2>Schedule</h2>
+                                <div class="row">
+                                    <div :key="team.id" class="col-sm-12" v-for="team in event.teams">
+                                        <h4>{{team.name}} vs {{team.name}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 </template>
 

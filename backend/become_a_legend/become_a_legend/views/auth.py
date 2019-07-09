@@ -40,7 +40,7 @@ def post_register_form(request):
         request.dbsession.add(player)
         request.dbsession.flush()
         token = jwt.encode({ 'username': player.username, 'id': player.id }, 'secret', algorithm='HS256')
-        return Response('OK', status=200, json={'token': token.decode('utf-8')})
+        return Response('OK', status=200, json={ 'token': token.decode('utf-8'), 'user_id': player.id })
     except DBAPIError:
         return Response(DBAPIError.args[0], content_type='text/plain', status=500)
     except Exception as err:
@@ -54,19 +54,21 @@ def post_login_form(request):
     player = request.dbsession.query(Player).filter_by(username=username).first()
     if player is not None and player.check_password(password):
         token = jwt.encode({ 'username': player.username, 'id': player.id }, 'secret', algorithm='HS256')
-        response = Response('ok', status=200, json_body={'token': token.decode('utf-8')})
+        response = Response('ok', status=200, json_body={ 'token': token.decode('utf-8'), 'user_id': player.id })
         return response
     message = 'Failed login1'
     return Response(HTTPForbidden)
 
 @view_config(route_name='get_login_form', renderer='json')
 def get_login_form(request):
-    # player = request.player_service.check_token_set_player()
-    if request.user:
-        return request.user
-    return Response('ok', status=200)
+    if not request.user:
+        return Response('ok', status=200)
 
-@forbidden_view_config()
-def forbidden_view(request):
-    next_url = request.route_url('login', _query={'next': request.url})
-    return HTTPFound(location=next_url)
+@view_config(route_name='get_login_form_o', renderer='json')
+def get_login_form_o(request):
+    return {}
+
+# @forbidden_view_config()
+# def forbidden_view(request):
+#     next_url = request.route_url('login', _query={'next': request.url})
+#     return HTTPFound(location=next_url)

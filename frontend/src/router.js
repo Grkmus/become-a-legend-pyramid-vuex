@@ -3,10 +3,30 @@ import Router from 'vue-router';
 import Home from './views/Home.vue';
 import Landing from './views/Landing.vue';
 import Register from './views/Register.vue';
+import About from './views/About.vue';
 import Login from './views/Login.vue';
 import Player from './views/Player.vue';
+import Event from './views/Event.vue';
 import NotFound from './views/NotFound.vue';
+import store from './store';
+// check if user is logged in before every request.
 
+
+function loggedInRedirectHome(to, from, next) {
+  if (localStorage.token) {
+    next('/home')
+  } else {
+    next()
+  }
+}
+
+function notLoggedInRedirectLogin(to, from, next) {
+  if (localStorage.token) {
+    next()
+  } else {
+    next('/login')
+  }
+}
 Vue.use(Router);
 const router = new Router({
   mode: 'history',
@@ -16,41 +36,36 @@ const router = new Router({
       name: 'landing',
       component: Landing,
       meta: {
-        public: true,  // Allow access to even if not logged in
-        onlyWhenLoggedOut: true
+        public: true, // Allow access to even if not logged in
+        onlyWhenLoggedOut: true,
       },
-      beforeEnter: loggedInRedirectHome
+      beforeEnter: loggedInRedirectHome,
     },
     {
       path: '/register',
       name: 'register',
       component: Register,
       meta: {
-        public: true,  // Allow access to even if not logged in
-        onlyWhenLoggedOut: true
+        public: true, // Allow access to even if not logged in
+        onlyWhenLoggedOut: true,
       },
-      beforeEnter: loggedInRedirectHome
-      
+      beforeEnter: loggedInRedirectHome,
     },
     {
       path: '/login',
       name: 'login',
       component: Login,
       meta: {
-        public: true,  // Allow access to even if not logged in
-        onlyWhenLoggedOut: true
+        public: true, // Allow access to even if not logged in
+        onlyWhenLoggedOut: true,
       },
-      beforeEnter: loggedInRedirectHome
-    }, 
-    {
-      path: '/home',
-      name: 'home',
-      component: Home,
+      beforeEnter: loggedInRedirectHome,
     },
     {
       path: '/home',
       name: 'home',
       component: Home,
+      beforeEnter: notLoggedInRedirectLogin,
     },
     {
       path: '/player/:id',
@@ -58,63 +73,30 @@ const router = new Router({
       component: Player,
     },
     {
+      path: '/event/:id',
+      name: 'event',
+      component: Event,
+    },
+    {
       path: '/about',
       name: 'about',
-      
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+      component: About,
     },
     {
       path: '*',
       name: 'notfound',
       component: NotFound,
-    }
+    },
   ],
 });
 
-function loggedInRedirectHome (to, from, next) {
-  if(localStorage.token){
-    next('/home')
-  } else {
+router.beforeEach((to, from, next) => {
+  // checking isLoggedIn status to not emit too much events
+  if (!store.state.isLoggedIn && localStorage.token) {
+    store.dispatch('getUserLoggedIn')
     next()
   }
-}
+  next()
+})
 
-
-// router.beforeEach((to, from, next) => {
-//   const isPublic = to.matched.some(record => record.meta.public)
-//   const onlyWhenLoggedOut = to.matched.some(record => record.meta.onlyWhenLoggedOut)
-//   const loggedIn = !!TokenService.getToken();
-
-//   if (!isPublic && !loggedIn) {
-//     return next({
-//       path:'/login',
-//       query: {redirect: to.fullPath}  // Store the full path to redirect the user to after login
-//     });
-//   }
-
-//   // Do not allow user to visit login page or register page if they are logged in
-//   if (loggedIn && onlyWhenLoggedOut) {
-//     return next('/')
-//   }
-
-//   next();
-// })
-// router.beforeEach((to, from, next) => {
-//   const isPublic = to.matched.some(record => record.meta.public)
-//   if (isPublic) {
-//     console.log('Public Page!')
-//     next()
-//   }
-//   else {
-//     console.log('Private Page!')
-//     return next({
-//       path: '/login',
-//       query: {redirect: to.fullPath }
-//     });
-//   }
-// })
- 
 export default router

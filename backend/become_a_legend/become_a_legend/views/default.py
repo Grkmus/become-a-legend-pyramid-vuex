@@ -1,7 +1,7 @@
 from pyramid.view import ( view_config, view_defaults )
 from pyramid.httpexceptions import (HTTPFound, HTTPNotFound, HTTPForbidden)
 from pyramid.response import Response
-from sqlalchemy.orm import ( sessionmaker, load_only )
+from sqlalchemy.orm import ( sessionmaker, load_only, joinedload)
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
 from pyramid.security import (
     remember,
@@ -9,8 +9,8 @@ from pyramid.security import (
     )
 import json
 from .. import models
-from ..services.common_service import to_json
-
+from marshmallow import pprint
+from become_a_legend.services.utils import ( PlayerSchema, EventSchema )
 
 @view_config(route_name='home', renderer='json')
 def landing(request):
@@ -21,29 +21,40 @@ class PlayerView(object):
     def __init__(self, request):
         self.request = request
 
-
     @view_config(route_name='get_all_players')
     def get_all_players(self):
-        players = self.request.dbsession.query(models.Player.id, models.Player.name, models.Player.surname).all()
-        players_list = []
-        for i in players:
-            player = dict(id=i.id, name=i.name, surname=i.surname)
-            players_list.append(player)
-        return players_list
+        if self.request.user:
+            players = self.request.dbsession.query(models.Player.id, models.Player.name, models.Player.surname).all()
+            players_list = []
+            for i in players:
+                player = dict(id=i.id, name=i.name, surname=i.surname)
+                players_list.append(player)
+            return players_list
+        return Response("Un-Authorized request", status=403)
+
+    @view_config(route_name='get_all_players_o')    
+    def get_all_players_o(request):
+        return {}
 
     @view_config(route_name='get_player')
     def get_player(self):
-        try:
-            player_id = self.request.matchdict['id']
-            player = self.request.dbsession.query(models.Player).filter_by(id=player_id).first()
-            if player is None:
-                raise HTTPNotFound
-            player_json = to_json(player)
-            return Response('OK', status=200, json=player_json)    
-        except DBAPIError as identifier:
-            return Response(db_err_msg, content_type='text/plain', status=500)
-
+        if self.request.user:
+            try:
+                player_id = self.request.matchdict['id']
+                player = self.request.dbsession.query(models.Player).options(joinedload('events')).filter_by(id=player_id).first()
+                if player is None:
+                    raise HTTPNotFound
+                player_schema = PlayerSchema()
+                output = player_schema.dump(player).data
+                pprint(output, indent=2)
+                return Response('OK', status=200, json=output)    
+            except DBAPIError as identifier:
+                return Response(db_err_msg, content_type='text/plain', status=500)
+        return Response("Un-Authorized request", status=403)
     
+    @view_config(route_name='get_player_o')    
+    def get_player_o(request):
+        return {}
 
     @view_config(route_name='append_player_to_team', renderer='json')
     def append_player_to_team(self):
@@ -68,12 +79,20 @@ class PlayerView(object):
 
     @view_config(route_name='get_all_events')
     def get_all_events(self):
-        events = self.request.dbsession.query(models.Event.name, models.Event.type_of_event).all()
-        events_list = []
-        for i in events:
-            event = dict(name=i.name, type_of_event=i.type_of_event)
-            events_list.append(event)
-        return events_list
+        if self.request.user:
+            events = self.request.dbsession.query(models.Event).all()
+            events_list = []
+            event_schema = EventSchema()
+            for event in events:
+                output = event_schema.dump(event).data
+                events_list.append(output)
+            pprint(output, indent=2)
+            return Response('OK', status=200, json=events_list)
+        return Response("Un-Authorized request", status=403)
+
+    @view_config(route_name='get_all_events_o')
+    def get_all_events_o(self):
+        return {}
 
 @view_config(route_name='add_team', renderer='json')
 def add_team(request):

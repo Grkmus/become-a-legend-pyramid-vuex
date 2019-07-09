@@ -13,6 +13,7 @@
     "axios": "^0.19.0",
     "core-js": "^2.6.5",
     "cors": "^2.8.5",
+    "jsonwebtoken": "^8.5.1",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1"
@@ -39,7 +40,18 @@
       "plugin:vue/essential",
       "@vue/airbnb"
     ],
-    "rules": {},
+    "rules": {
+      "semi": 0,
+      "no-param-reassign": [
+        "error",
+        {
+          "props": true,
+          "ignorePropertyModificationsFor": [
+            "state"
+          ]
+        }
+      ]
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }

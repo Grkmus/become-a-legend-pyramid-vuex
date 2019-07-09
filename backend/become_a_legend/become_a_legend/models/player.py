@@ -31,24 +31,24 @@ class Player(Base):
     role_preference = Column(Integer)
     password_hash = Column(Text)
 
-    def __init__(self, request, id, username, name, surname, email, imageURL, team_id, age, weight, height, location, telephone, ratings_by_Own, rating_evaluation, credit, rolePreference):
-        self.request = request
-        self.id = id
-        self.username = username
-        self.name = name
-        self.surname = surname
-        self.email = email
-        self.imageurl = imageURL
-        self.team_id = team_id
-        self.age = age
-        self.weight = weight
-        self.height = height
-        self.location = location
-        self.telephone = telephone
-        self.ratings_by_own = ratings_by_own
-        self.rating_evaluation = rating_evaluation
-        self.credit = credit
-        self.role_preference = rolePreference
+    # def __init__(self, request, id, username, name, surname, email, imageURL, team_id, age, weight, height, location, telephone, ratings_by_Own, rating_evaluation, credit, rolePreference):
+    #     self.request = request
+    #     self.id = id
+    #     self.username = username
+    #     self.name = name
+    #     self.surname = surname
+    #     self.email = email
+    #     self.imageurl = imageURL
+    #     self.team_id = team_id
+    #     self.age = age
+    #     self.weight = weight
+    #     self.height = height
+    #     self.location = location
+    #     self.telephone = telephone
+    #     self.ratings_by_own = ratings_by_own
+    #     self.rating_evaluation = rating_evaluation
+    #     self.credit = credit
+    #     self.role_preference = rolePreference
 
 
     def to_json(self):
@@ -67,7 +67,8 @@ class Player(Base):
             ratings_by_own = self.ratings_by_own,
             rating_evaluation = self.rating_evaluation,
             credit = self.credit,
-            role_preference = self.role_preference
+            role_preference = self.role_preference,
+            events = self.events
         )
         
     def set_password(self, pw):

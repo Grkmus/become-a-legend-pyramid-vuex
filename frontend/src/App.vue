@@ -5,7 +5,11 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto pull-right">
                 <li class="nav-item">
-                    <router-link v-if="!isLoggedIn" class="btn btn-danger" to="/register">Sign Up</router-link>
+                    <router-link 
+                    v-if="!isLoggedIn" 
+                    class="btn btn-danger" 
+                    to="/register">
+                    Sign Up</router-link>
                 </li>
                 <li class="nav-item pull-right">
                     <router-link v-if="!isLoggedIn" class="nav-link" to="/login">Login</router-link>
@@ -23,6 +27,27 @@
 </div>
 
 </template>
+
+<script>
+import { mapState } from 'vuex'
+import router from './router'
+
+
+export default {
+  name: 'navbar',
+  computed: {
+    ...mapState(['isLoggedIn']),
+  },
+  methods: {
+    logout: function() {
+      localStorage.clear()
+      this.$store.dispatch('getUserLoggedOut')
+      router.push('/')
+    },
+  },
+}
+
+</script>
 
 <style>
 #app {
@@ -45,31 +70,3 @@
   color: #42b983;
 }
 </style>
-
-<script>
-import router from './router.js'
-
-export default {
-  name: 'navbar',
-  // created: function() {
-  //   if (localStorage.token) {
-  //     this.notLoggedIn = false
-  //     console.log('...')
-  //   }
-  // },
-  data: () => {
-    return {
-      isLoggedIn: true
-    }
-  },
-	methods: {
-    logout: function () { 
-      localStorage.clear()
-      this.isLoggedIn = false
-      router.push('/')
-    },
-
-  }
-}
-
-</script>

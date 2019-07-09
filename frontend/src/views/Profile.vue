@@ -56,7 +56,7 @@ import axios from 'axios'
 import router from '../router.js'
 
 export default {
-  name: 'dashboard',
+  name: 'profile',
   async created(){
     await this.fetchPlayer(this.$route.params.id)
   },

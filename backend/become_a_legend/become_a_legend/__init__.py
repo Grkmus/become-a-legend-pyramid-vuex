@@ -1,5 +1,8 @@
 from pyramid.config import Configurator
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.response import Response
+from pyramid.httpexceptions import (HTTPFound, HTTPNotFound, HTTPForbidden)
+
 
 def add_cors_headers_response_callback(event):
     def cors_headers(request, response):
@@ -24,16 +27,19 @@ def main(global_config, **settings):
         config.include('.models')
         config.include('pyramid_jinja2')
         config.include('.routes')
-        config.include('.security')
+        # config.include('.security')
         config.add_subscriber(add_cors_headers_response_callback, NewRequest)
-        config.set_authorization_policy(ACLAuthorizationPolicy)
-        config.add_request_method(get_user, 'user', property=True)
+        config.add_request_method(get_user, 'user', reify=True)
         config.scan()
     return config.make_wsgi_app()
 
 def get_user(request):
-    if request.authorization:  
-        token = request.authorization.params
-        user = jwt.decode(token, 'secret', algorithms='HS256')
-        if user:
-            return user
+    if request.authorization is not None:
+        if request.authorization.params == 'undefined' or request.authorization.params == '':
+            raise HTTPForbidden
+        else:  
+            token = request.authorization.params
+            user = jwt.decode(token, 'secret', algorithms='HS256')
+            if user:
+                return user
+

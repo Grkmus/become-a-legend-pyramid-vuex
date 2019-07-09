@@ -27,7 +27,7 @@ import axios from 'axios'
 import Joi from '@hapi/joi'
 
 const schema = Joi.object().keys({
-        name: Joi.string().alphanum().min(2).max(30).required(),
+        name: Joi.string().regex(/^[a-zA-ZİğüöÖÜ]/).min(2).max(30).required(),
         surname: Joi.string().alphanum().min(2).max(30).required(),
         username: Joi.string().alphanum().min(3).max(30).required(),
         email: Joi.string().email({ minDomainSegments: 2 }),
@@ -72,11 +72,12 @@ export default {
       }
 
       const result = Joi.validate(this.player, schema)
-      if (result.error === null) 
-        return true;
-      this.errorMessage = result.error.details[0].message
+      if (result.error) {
+        this.errorMessage = result.error.details[0].message
+        return false;
+      }
       console.dir(result.error)
-      return false;
+      return true;
     },
   }
 }
