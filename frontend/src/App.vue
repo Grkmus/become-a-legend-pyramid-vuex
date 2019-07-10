@@ -29,20 +29,21 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import router from './router'
 
 
 export default {
   name: 'navbar',
   computed: {
-    ...mapState(['isLoggedIn']),
+    ...mapGetters(['isLoggedIn']),
   },
   methods: {
     logout: function() {
       localStorage.clear()
-      this.$store.dispatch('getUserLoggedOut')
-      router.push('/')
+      this.$store.dispatch('getUserLoggedOut').then(() => {
+        router.push('/')
+      })
     },
   },
 }

@@ -3,23 +3,33 @@ import Vuex from 'vuex';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 
-const request = axios.create({
-  baseURL: 'http://localhost:6543',
-});
-
-const AUTH_TOKEN = `Bearer ${localStorage.token}`
+// const request = axios.create({
+//   baseURL: 'http://localhost:6543',
+// });
+// const AUTH_TOKEN = `Bearer ${localStorage.token}`
 // Alter defaults after instance has been created
-request.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+const authHeaderSet = {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  },
+}
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    userId: null,
+    user: null,
     player: {},
     players: [],
     events: [],
-    isLoggedIn: false,
+  },
+  getters: {
+    isLoggedIn: (state) => {
+      if (state.user === {} || state.user === null) {
+        return false
+      }
+      return true
+    },
   },
   mutations: {
     setPlayer(state, payload) {
@@ -31,41 +41,41 @@ export default new Vuex.Store({
     setEvents(state, payload) {
       state.events = payload
     },
-    setUserId(state, payload) {
-      state.userId = payload
-    },
-    setUserLoggedIn(state) {
-      state.isLoggedIn = true
+    setUser(state, payload) {
+      state.user = payload
     },
     setUserLoggedOut(state) {
-      state.isLoggedIn = false
-      state.userId = null
+      state.user = null
     },
   },
   actions: {
     async fetchPlayer({ commit }, id) {
-      commit('setPlayer', (await request.get(`/player/${id}`)).data)
+      commit('setPlayer', (await axios.get(`http://localhost:6543/player/${id}`, authHeaderSet)).data)
     },
     async fetchPlayers({ commit }) {
-      commit('setPlayers', (await request.get('/player/all')).data)
+      commit('setPlayers', (await axios.get('http://localhost:6543/player/all', authHeaderSet)).data)
     },
     async fetchEvents({ commit }) {
-      commit('setEvents', (await request.get('/event/all')).data)
+      console.log('fetchEvents')
+      commit('setEvents', (await axios.get('http://localhost:6543/event/all', authHeaderSet)).data)
     },
-    getUserId({ commit }) {
-      const result = jwt.verify(localStorage.token, 'secret', (err, decoded) => {
+    async getUser({ commit }) {
+      const result = await jwt.verify(localStorage.token, 'secret', (err, decoded) => {
         if (err) {
+          console.log(err)
           return err
         }
         return decoded
       })
-      commit('setUserId', result)
-    },
-    getUserLoggedIn({ commit }) {
-      commit('setUserLoggedIn')
+      commit('setUser', result)
     },
     getUserLoggedOut({ commit }) {
       commit('setUserLoggedOut')
     },
+    // async attendToEvent({ commit }, ids) {
+    //   console.log(ids.eventId, ids.userId)
+    //   commit('attendToEvent', (await axios.get(`http://localhost:6543/player/${id}/event/${eventId}`, authHeaderSet)).data)
+    //   // commit('attendToEvent')
+    // },
   },
 });

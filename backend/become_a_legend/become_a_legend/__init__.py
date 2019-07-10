@@ -29,13 +29,16 @@ def main(global_config, **settings):
         config.include('.routes')
         # config.include('.security')
         config.add_subscriber(add_cors_headers_response_callback, NewRequest)
-        config.add_request_method(get_user, 'user', reify=True)
+        config.add_request_method(get_user, 'user', property=True)
         config.scan()
     return config.make_wsgi_app()
 
 def get_user(request):
+    # import pdb; pdb.set_trace()
     if request.authorization is not None:
+        print(request.authorization)
         if request.authorization.params == 'undefined' or request.authorization.params == '':
+            print(request.authorization)
             raise HTTPForbidden
         else:  
             token = request.authorization.params

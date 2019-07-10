@@ -12,7 +12,7 @@
                 <div class="col-sm-4 people">
                     <p class="center">Number of people </p>
                     <h5 class="card-title center">{{ numberOfAttendees }}</h5>
-                    <button class="btn-primary">Attend</button>
+                    <button @click="attendToEvent" class="btn-primary">Attend</button>
                 </div>
             </div>
         </div>
@@ -35,6 +35,13 @@ export default {
         // alreadyAttended: function() {
         //     if (this.$state.player)
         // } 
+    },
+    methods: {
+        attendToEvent: function() {
+            console.log('attend to an event',this.$store.state.user.id, this.event.id)
+            const userId = this.$store.state.user.id
+            axios.post(`http://localhost:6543/player/${userId}/event/${this.event.id}`).then(res => console.log(res))
+        }
     }
 }
 </script>

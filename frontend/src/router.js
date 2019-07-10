@@ -11,22 +11,22 @@ import NotFound from './views/NotFound.vue';
 import store from './store';
 // check if user is logged in before every request.
 
+// function checkLoggedInRedirectHome(to, from, next) {
+//   if (localStorage.token) {
+//     next('/home')
+//   } else {
+//     next()
+//   }
+// }
 
-function loggedInRedirectHome(to, from, next) {
-  if (localStorage.token) {
-    next('/home')
-  } else {
-    next()
-  }
-}
-
-function notLoggedInRedirectLogin(to, from, next) {
-  if (localStorage.token) {
-    next()
-  } else {
-    next('/login')
-  }
-}
+// function checkLoggedInRedirectLogin(to, from, next) {
+//   if (localStorage.token) {
+//     store.dispatch('getUser')
+//     next()
+//   } else {
+//     next('/login')
+//   }
+// }
 Vue.use(Router);
 const router = new Router({
   mode: 'history',
@@ -36,46 +36,49 @@ const router = new Router({
       name: 'landing',
       component: Landing,
       meta: {
-        public: true, // Allow access to even if not logged in
-        onlyWhenLoggedOut: true,
+        relatedToAuth: true,
       },
-      beforeEnter: loggedInRedirectHome,
     },
     {
       path: '/register',
       name: 'register',
       component: Register,
       meta: {
-        public: true, // Allow access to even if not logged in
-        onlyWhenLoggedOut: true,
+        relatedToAuth: true,
       },
-      beforeEnter: loggedInRedirectHome,
     },
     {
       path: '/login',
       name: 'login',
       component: Login,
       meta: {
-        public: true, // Allow access to even if not logged in
-        onlyWhenLoggedOut: true,
+        relatedToAuth: true,
       },
-      beforeEnter: loggedInRedirectHome,
     },
     {
       path: '/home',
       name: 'home',
       component: Home,
-      beforeEnter: notLoggedInRedirectLogin,
+      meta: {
+        requiresAuth: true,
+      },
+      // beforeEnter: checkLoggedInRedirectLogin,
     },
     {
       path: '/player/:id',
       name: 'player',
       component: Player,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/event/:id',
       name: 'event',
       component: Event,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/about',
@@ -91,12 +94,46 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  // checking isLoggedIn status to not emit too much events
-  if (!store.state.isLoggedIn && localStorage.token) {
-    store.dispatch('getUserLoggedIn')
+  // console.log('beforeEachStart')
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // console.log('this route requires auth')
+    if (localStorage.token) {
+      if (!store.getters.isLoggedIn) {
+        // console.log('the user has token but not logged in')
+        store.dispatch('getUser')
+        // console.log('the user has been set')
+        next()
+      } else {
+        // console.log('the user has token and is logged in')
+        next()
+      }
+    } else {
+      // console.log('the user is NOT logged in')
+      next('/login')
+    }
+  } else if (to.matched.some(record => record.meta.relatedToAuth)) {
+    // console.log('this route is related to auth')
+    if (localStorage.token) {
+      // console.log('the user is logged in so needs to go to home page!')
+      next('/home')
+    } else {
+      // console.log('the user is NOT logged in can go to a route related to auth')
+      next()
+    }
+  } else {
+  //   console.log('do whatever you like!')
     next()
   }
-  next()
 })
+// router.beforeEach((to, from, next) => {
+//   // checking isLoggedIn status to not emit too much events
+//   if (localStorage.token) {
+//     console.log('localStorage is undefined!', localStorage.token)
+//     store.dispatch('getUser')
+//     next()
+//   } else {
+//     next(false)
+//   }
+// })
 
 export default router

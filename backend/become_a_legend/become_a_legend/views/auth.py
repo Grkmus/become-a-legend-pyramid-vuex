@@ -40,7 +40,7 @@ def post_register_form(request):
         request.dbsession.add(player)
         request.dbsession.flush()
         token = jwt.encode({ 'username': player.username, 'id': player.id }, 'secret', algorithm='HS256')
-        return Response('OK', status=200, json={ 'token': token.decode('utf-8'), 'user_id': player.id })
+        return Response('OK', status=200, json={ 'token': token.decode('utf-8') })
     except DBAPIError:
         return Response(DBAPIError.args[0], content_type='text/plain', status=500)
     except Exception as err:
@@ -54,7 +54,7 @@ def post_login_form(request):
     player = request.dbsession.query(Player).filter_by(username=username).first()
     if player is not None and player.check_password(password):
         token = jwt.encode({ 'username': player.username, 'id': player.id }, 'secret', algorithm='HS256')
-        response = Response('ok', status=200, json_body={ 'token': token.decode('utf-8'), 'user_id': player.id })
+        response = Response('ok', status=200, json_body={ 'token': token.decode('utf-8') })
         return response
     message = 'Failed login1'
     return Response(HTTPForbidden)

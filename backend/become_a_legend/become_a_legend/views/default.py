@@ -69,11 +69,15 @@ class PlayerView(object):
     @view_config(route_name='append_player_to_event', renderer='json')
     def append_player_to_event(self):
         try:
+            session = self.request.dbsession
             player_id = self.request.matchdict['id']
-            player = self.request.dbsession.query(models.Player).filter_by(id=player_id).first()
-            player.events.append(self.request.matchdict['event_id'])
-            event = HTTPFound(location='/event'+ self.request.matchdict['event_id'])
-            return Response('OK', status=200)
+            event_id = self.request.matchdict['event_id']
+            player = session.query(models.Player).filter_by(id=player_id).first()
+            event = session.query(models.Event).filter_by(id=event_id).first()
+            player.events.append(event)
+            event_schema = EventSchema()
+            output = event_schema.dump(event).data
+            return Response('OK', status=200, json=output)
         except DBAPIError:
             return Response(db_err_msg, content_type='text/plain', status=500)
 
@@ -86,7 +90,6 @@ class PlayerView(object):
             for event in events:
                 output = event_schema.dump(event).data
                 events_list.append(output)
-            pprint(output, indent=2)
             return Response('OK', status=200, json=events_list)
         return Response("Un-Authorized request", status=403)
 

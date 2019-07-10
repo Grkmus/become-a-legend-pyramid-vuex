@@ -30,15 +30,11 @@ export default {
 			}
 			await axios.post('http://localhost:6543/login', player)
 				.then(async res => {
-					localStorage.token = res.data.token
-					jwt.verify(localStorage.token, 'secret', (err, decoded) => {
-						if (err) {
-							console.log(err)
-						}
-						console.log(decoded)
+					const token = res.data.token
+					localStorage.setItem('token', token)
+					this.$store.dispatch('getUser').then(() => {
+						router.push('home')
 					})
-					this.$store.dispatch('getUserId')
-					router.push('home')
 				}).catch(err => {
 					if (err.response.status == 500)
 						alert('wrong username or password')
