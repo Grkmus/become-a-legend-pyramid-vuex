@@ -7,6 +7,7 @@ from sqlalchemy import (
     FLOAT,
     ForeignKey,
 )
+print('OLAYLAAAR')
 from sqlalchemy.orm import relationship, validates
 import bcrypt
 from .meta import Base
