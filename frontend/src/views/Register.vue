@@ -10,12 +10,6 @@
           </div>
 
           <div class="form-group has-danger">
-            <label class="form-control-label" for="inputDanger1">Invalid input</label>
-            <input type="text" value="wrong value" class="form-control is-invalid" id="inputInvalid">
-            <div class="invalid-feedback">Sorry, that username's taken. Try another?</div>
-          </div>
-
-          <div class="form-group has-danger">
             <label class="form-control-label" for="name">Name</label>
             <input v-model="player.name" id="name" v-bind:class="{ 'is-invalid': errorMessage.name }" class="form-control" type="text" placeholder="Name" name="name">
             <div class="invalid-feedback" v-if="errorMessage.name">{{ errorMessage.name }}</div>
@@ -30,7 +24,7 @@
           <div class="form-group has-danger">
             <label class="form-control-label" for="email">Email address</label>
             <input v-model="player.email" id="email" v-bind:class="{ 'is-invalid': errorMessage.email }" class="form-control" type="email" placeholder="Enter email" name="email" aria-describedby="emailHelp" >
-            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+            <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
             <div class="invalid-feedback" v-if="errorMessage.email">{{ errorMessage.email }}</div>
           </div>
 
@@ -57,45 +51,8 @@
     </div>
   </div>
 </div>
-
-<!-- <div class="main container">
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-          <div class="alert alert-warning" role="alert" v-if="errorMessage">
-            {{errorMessage}}
-          </div>
-            <h1 class="display-4 m-b-2">Register to play</h1>
-          <form @submit.prevent="signup" method="POST" action="/register" id="forms">
-              <div class="form-group">
-                <label for="name">Name:</label>
-                <input v-model="player.name" class="form-control" type="text" placeholder="name" name="name" />
-              </div>
-              <div class="form-group">
-                <label for="surname">Surname:</label>
-                <input v-model="player.surname" class="form-control" type="text" placeholder="name" name="surname" />
-              </div>
-              <div class="form-group">
-                <label for="username">Username:</label>
-                <input v-model="player.username" class="form-control" type="text" placeholder="name" name="username" />
-              </div>
-              <div class="form-group">
-                <label for="email">Email:</label>
-                <input v-model="player.email" class="form-control" type="email" placeholder="name@email.com" name="email" />
-              </div>
-              <div class="form-group">
-                <label for="pw">Password:</label>
-                <input v-model="player.password" class="form-control" type="password"  />
-              </div>
-              <div class="form-group">
-                <label for="pw">Password:</label>
-                <input v-model="player.confirmPassword" class="form-control" type="password" />
-                </div>
-              <button class="btn btn-primary" type="submit">Submit</button>
-          </form>
-        </div>
-    </div>
-</div> -->
 </template>
+
 <script>
 
 import router from '../router.js'

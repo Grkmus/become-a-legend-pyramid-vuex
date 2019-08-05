@@ -103,10 +103,9 @@ router.beforeEach((to, from, next) => {
         store.dispatch('getUser')
         // console.log('the user has been set')
         next()
-      } else {
-        // console.log('the user has token and is logged in')
-        next()
       }
+      // console.log('the user has token and is logged in')
+      next()
     } else {
       // console.log('the user is NOT logged in')
       next('/login')
@@ -121,19 +120,17 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
-  //   console.log('do whatever you like!')
+    if (localStorage.token) {
+      if (!store.getters.isLoggedIn) {
+        store.dispatch('getUser')
+        next()
+      }
+      next()
+    }
+    // console.log('do whatever you like!')
     next()
   }
 })
-// router.beforeEach((to, from, next) => {
-//   // checking isLoggedIn status to not emit too much events
-//   if (localStorage.token) {
-//     console.log('localStorage is undefined!', localStorage.token)
-//     store.dispatch('getUser')
-//     next()
-//   } else {
-//     next(false)
-//   }
-// })
+
 
 export default router

@@ -10,7 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, validates
 import bcrypt
 from .meta import Base
-
+print('yok vooolm')
 class Player(Base):
     __tablename__ = 'players'
     id = Column(Integer, primary_key=True)
