@@ -6,6 +6,7 @@ from sqlalchemy import (
     DATE,
     TIME,
 )
+print('denemeleer')
 from sqlalchemy.orm import relationship
 from .association import player_event_table
 
