@@ -11,7 +11,7 @@ print('OLAYLAAAR')
 from sqlalchemy.orm import relationship, validates
 import bcrypt
 from .meta import Base
-
+print('loy loy loy ')
 class Player(Base):
     __tablename__ = 'players'
     id = Column(Integer, primary_key=True)
